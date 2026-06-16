@@ -1,0 +1,44 @@
+{
+  "name": "KI Coach – Persönlicher & Business Coach",
+  "short_name": "KI Coach",
+  "description": "Dein persönlicher KI-Lebens- und Business-Coach powered by Claude",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0d0d1a",
+  "theme_color": "#0d0d1a",
+  "orientation": "portrait-primary",
+  "lang": "de",
+  "categories": ["productivity", "lifestyle", "business"],
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Privat Coach",
+      "short_name": "Privat",
+      "description": "Öffne den persönlichen Lebenscoach",
+      "url": "./index.html?mode=private",
+      "icons": [{ "src": "icon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Business Coach",
+      "short_name": "Business",
+      "description": "Öffne den Business Coach",
+      "url": "./index.html?mode=business",
+      "icons": [{ "src": "icon.svg", "sizes": "any" }]
+    }
+  ]
+}
