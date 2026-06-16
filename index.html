@@ -5,8 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>KI Coach</title>
   <meta name="description" content="Dein persönlicher KI-Lebens- und Business-Coach">
-
-  <!-- PWA -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0d0d1a" id="themeColorMeta">
   <meta name="mobile-web-app-capable" content="yes">
@@ -17,506 +15,363 @@
   <link rel="icon" type="image/svg+xml" href="icon.svg">
 
   <style>
-    /* ── RESET & BASE ─────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* ── DESIGN TOKENS ────────────────────────────── */
+    /* ── TOKENS ──────────────────────────────────── */
     :root {
-      /* Private mode – warm indigo/blue */
-      --c-bg0:        #0d0d1a;
-      --c-bg1:        #13132a;
-      --c-bg2:        #1c1c38;
-      --c-bg3:        #252545;
-      --c-bg-input:   #10102280;
-      --c-text0:      #eeeeff;
-      --c-text1:      #9090c0;
-      --c-text2:      #555588;
-      --c-accent:     #6366f1;
-      --c-accent-h:   #818cf8;
-      --c-accent-d:   #4f46e5;
-      --c-glow:       rgba(99,102,241,.28);
-      --c-border:     rgba(99,102,241,.18);
-      --c-user-bg:    #5254cc;
-      --c-user-text:  #fff;
-      --c-ai-bg:      #1c1c38;
-      --c-ai-text:    #eeeeff;
-      --c-err:        rgba(239,68,68,.12);
-      --c-err-border: rgba(239,68,68,.3);
-      --c-err-text:   #fca5a5;
-      --c-shadow:     rgba(0,0,0,.6);
-      --c-overlay:    rgba(0,0,0,.72);
-      --radius:       18px;
-      --radius-sm:    10px;
-      --radius-pill:  100px;
-      --trans:        .38s cubic-bezier(.4,0,.2,1);
-      --trans-fast:   .2s ease;
+      --c-bg0: #0d0d1a; --c-bg1: #13132a; --c-bg2: #1c1c38; --c-bg3: #252545;
+      --c-bg-i: rgba(16,16,34,.8);
+      --c-t0: #eeeeff; --c-t1: #9090c0; --c-t2: #555588;
+      --c-a: #6366f1; --c-ah: #818cf8; --c-ad: #4f46e5;
+      --c-glow: rgba(99,102,241,.28); --c-brd: rgba(99,102,241,.18);
+      --c-ub: #5254cc; --c-ut: #fff; --c-ab: #1c1c38; --c-at: #eeeeff;
+      --c-sh: rgba(0,0,0,.6); --c-ov: rgba(0,0,0,.72);
+      --r: 18px; --rs: 10px; --rp: 100px;
+      --tr: .38s cubic-bezier(.4,0,.2,1); --tf: .2s ease;
     }
-
     body.biz {
-      /* Business mode – deep green/teal */
-      --c-bg0:        #07120e;
-      --c-bg1:        #0c1e17;
-      --c-bg2:        #112619;
-      --c-bg3:        #163220;
-      --c-bg-input:   #0a1a1280;
-      --c-text0:      #e0fff5;
-      --c-text1:      #5daa88;
-      --c-text2:      #336650;
-      --c-accent:     #10b981;
-      --c-accent-h:   #34d399;
-      --c-accent-d:   #059669;
-      --c-glow:       rgba(16,185,129,.28);
-      --c-border:     rgba(16,185,129,.18);
-      --c-user-bg:    #059669;
-      --c-user-text:  #fff;
-      --c-ai-bg:      #112619;
-      --c-ai-text:    #e0fff5;
+      --c-bg0: #07120e; --c-bg1: #0c1e17; --c-bg2: #112619; --c-bg3: #163220;
+      --c-bg-i: rgba(10,26,18,.8);
+      --c-t0: #e0fff5; --c-t1: #5daa88; --c-t2: #336650;
+      --c-a: #10b981; --c-ah: #34d399; --c-ad: #059669;
+      --c-glow: rgba(16,185,129,.28); --c-brd: rgba(16,185,129,.18);
+      --c-ub: #059669; --c-ut: #fff; --c-ab: #112619; --c-at: #e0fff5;
     }
 
-    /* ── GLOBAL ───────────────────────────────────── */
+    /* ── BASE ────────────────────────────────────── */
     html { height: 100%; }
     body {
-      height: 100%;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-      background: var(--c-bg0);
-      color: var(--c-text0);
-      transition: background var(--trans), color var(--trans);
-      overflow: hidden;
+      height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--c-bg0); color: var(--c-t0);
+      transition: background var(--tr), color var(--tr); overflow: hidden;
     }
-
-    /* ── SCREENS ──────────────────────────────────── */
     .screen { display: none; }
     .screen.active { display: flex; flex-direction: column; height: 100dvh; }
 
-    /* ── ONBOARDING ───────────────────────────────── */
+    /* ── ONBOARDING ──────────────────────────────── */
     #onboarding {
-      align-items: center;
-      justify-content: center;
-      padding: 24px 20px;
-      padding-top: max(24px, env(safe-area-inset-top));
-      padding-bottom: max(24px, env(safe-area-inset-bottom));
-      min-height: 100dvh;
-      background:
-        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(99,102,241,.18) 0%, transparent 70%),
-        var(--c-bg0);
-      overflow-y: auto;
+      align-items: center; justify-content: center;
+      padding: 20px; padding-top: max(20px, env(safe-area-inset-top));
+      padding-bottom: max(20px, env(safe-area-inset-bottom));
+      min-height: 100dvh; overflow-y: auto;
+      background: radial-gradient(ellipse 80% 50% at 50% -5%, rgba(99,102,241,.16) 0%, transparent 65%), var(--c-bg0);
     }
-
     .ob-card {
-      width: 100%;
-      max-width: 440px;
-      background: var(--c-bg2);
-      border: 1px solid var(--c-border);
-      border-radius: 28px;
-      padding: 44px 36px 36px;
-      box-shadow: 0 32px 80px var(--c-shadow);
+      width: 100%; max-width: 460px;
+      background: var(--c-bg2); border: 1px solid var(--c-brd);
+      border-radius: 28px; padding: 40px 32px 32px;
+      box-shadow: 0 32px 80px var(--c-sh);
     }
-
     .ob-logo {
-      width: 80px; height: 80px;
-      border-radius: 22px;
-      background: linear-gradient(135deg, var(--c-accent-h), var(--c-accent-d));
+      width: 76px; height: 76px; border-radius: 20px;
+      background: linear-gradient(135deg, var(--c-ah), var(--c-ad));
       display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 28px;
-      box-shadow: 0 12px 40px var(--c-glow);
+      margin: 0 auto 24px; box-shadow: 0 12px 40px var(--c-glow);
     }
-    .ob-logo svg { width: 44px; height: 44px; }
+    .ob-logo svg { width: 42px; height: 42px; }
+    .ob-card h1 { font-size: 24px; font-weight: 800; text-align: center; letter-spacing: -.5px; margin-bottom: 8px; }
+    .ob-card h1 em { color: var(--c-a); font-style: normal; }
+    .ob-sub { color: var(--c-t1); text-align: center; font-size: 13.5px; line-height: 1.6; margin-bottom: 28px; }
 
-    .ob-card h1 {
-      font-size: 26px; font-weight: 800; text-align: center;
-      letter-spacing: -.5px; margin-bottom: 10px;
+    /* ── PROVIDER GRID ───────────────────────────── */
+    .sect-label {
+      font-size: 11px; font-weight: 700; color: var(--c-t1);
+      letter-spacing: .1em; text-transform: uppercase; margin-bottom: 10px;
     }
-    .ob-card h1 span { color: var(--c-accent); }
-
-    .ob-sub {
-      color: var(--c-text1); text-align: center;
-      font-size: 14px; line-height: 1.65; margin-bottom: 36px;
+    .prov-grid {
+      display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 22px;
     }
-
-    .field { margin-bottom: 20px; }
-    .field label {
-      display: block; font-size: 11px; font-weight: 700;
-      color: var(--c-text1); letter-spacing: .1em;
-      text-transform: uppercase; margin-bottom: 8px;
+    .prov-btn {
+      padding: 7px 13px;
+      background: var(--c-bg3); border: 1.5px solid var(--c-brd);
+      border-radius: var(--rp);
+      color: var(--c-t1); font-size: 12.5px; font-weight: 600;
+      cursor: pointer; transition: all var(--tf); white-space: nowrap;
     }
+    .prov-btn.on {
+      background: var(--c-a); color: #fff; border-color: var(--c-a);
+      box-shadow: 0 3px 14px var(--c-glow);
+    }
+    .prov-btn:hover:not(.on) { border-color: var(--c-a); color: var(--c-ah); }
 
+    /* ── FORM ELEMENTS ───────────────────────────── */
+    .field { margin-bottom: 18px; }
+    .field-row { display: flex; gap: 10px; }
+    .field-row .field { flex: 1; }
     .inp-wrap { position: relative; }
-    .inp-wrap input {
-      width: 100%;
-      padding: 14px 46px 14px 16px;
-      background: var(--c-bg-input);
-      border: 1.5px solid var(--c-border);
-      border-radius: var(--radius-sm);
-      color: var(--c-text0); font-size: 14px;
-      outline: none; font-family: 'SF Mono', SFMono-Regular, monospace;
-      transition: border-color var(--trans-fast), box-shadow var(--trans-fast);
+    .inp-wrap input, .sel-input {
+      width: 100%; padding: 13px 46px 13px 15px;
+      background: var(--c-bg-i); border: 1.5px solid var(--c-brd);
+      border-radius: var(--rs); color: var(--c-t0); font-size: 14px;
+      outline: none; transition: border-color var(--tf), box-shadow var(--tf);
       -webkit-appearance: none;
     }
-    .inp-wrap input:focus {
-      border-color: var(--c-accent);
-      box-shadow: 0 0 0 3.5px var(--c-glow);
+    .inp-wrap input { font-family: 'SF Mono', SFMono-Regular, monospace; }
+    .sel-input {
+      padding: 13px 36px 13px 15px; font-family: inherit;
+      appearance: none; cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 14px center;
     }
-    .inp-wrap input.err {
-      border-color: #ef4444;
-      box-shadow: 0 0 0 3.5px rgba(239,68,68,.2);
+    .sel-input option { background: #1c1c38; color: #eeeeff; }
+    .inp-wrap input:focus, .sel-input:focus {
+      border-color: var(--c-a); box-shadow: 0 0 0 3.5px var(--c-glow);
     }
-    .inp-wrap input::placeholder { color: var(--c-text2); font-family: inherit; }
-
+    .inp-wrap input.err, .sel-input.err {
+      border-color: #ef4444; box-shadow: 0 0 0 3px rgba(239,68,68,.2);
+    }
+    .inp-wrap input::placeholder { color: var(--c-t2); font-family: inherit; }
     .eye-btn {
       position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-      background: none; border: none; color: var(--c-text1); cursor: pointer;
-      padding: 6px; line-height: 1; border-radius: 6px; font-size: 17px;
-      transition: color var(--trans-fast);
+      background: none; border: none; color: var(--c-t1); cursor: pointer;
+      padding: 6px; font-size: 16px; border-radius: 6px; transition: color var(--tf);
     }
-    .eye-btn:hover { color: var(--c-accent); }
+    .eye-btn:hover { color: var(--c-a); }
+
+    .key-link { display: block; margin-top: 6px; font-size: 12px; color: var(--c-t2); text-align: right; }
+    .key-link a { color: var(--c-a); text-decoration: none; }
+    .key-link a:hover { color: var(--c-ah); }
 
     .btn-primary {
-      width: 100%; padding: 16px;
-      background: linear-gradient(135deg, var(--c-accent), var(--c-accent-d));
-      border: none; border-radius: var(--radius-sm);
-      color: #fff; font-size: 16px; font-weight: 700;
-      cursor: pointer; letter-spacing: .01em;
+      width: 100%; padding: 15px;
+      background: linear-gradient(135deg, var(--c-a), var(--c-ad));
+      border: none; border-radius: var(--rs); color: #fff;
+      font-size: 15.5px; font-weight: 700; cursor: pointer; letter-spacing: .01em;
       box-shadow: 0 6px 24px var(--c-glow);
-      transition: transform var(--trans-fast), box-shadow var(--trans-fast), opacity var(--trans-fast);
+      transition: transform var(--tf), box-shadow var(--tf), opacity var(--tf);
     }
     .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 10px 32px var(--c-glow); }
-    .btn-primary:active { transform: translateY(0); opacity: .9; }
-
+    .btn-primary:active { transform: none; opacity: .9; }
     .sec-note {
-      margin-top: 20px; padding: 12px 16px;
-      background: rgba(255,255,255,.03);
-      border: 1px solid rgba(255,255,255,.07);
-      border-radius: var(--radius-sm);
-      font-size: 12px; color: var(--c-text2); line-height: 1.6; text-align: center;
+      margin-top: 18px; padding: 11px 15px;
+      background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.07);
+      border-radius: var(--rs); font-size: 12px; color: var(--c-t2); line-height: 1.55; text-align: center;
     }
 
-    /* ── MAIN APP ─────────────────────────────────── */
+    /* ── MAIN APP ────────────────────────────────── */
     #app { overflow: hidden; }
 
-    /* ── HEADER ───────────────────────────────────── */
+    /* ── HEADER ──────────────────────────────────── */
     header {
-      flex-shrink: 0;
-      padding: 14px 16px;
-      padding-top: max(14px, env(safe-area-inset-top));
-      background: var(--c-bg1);
-      border-bottom: 1px solid var(--c-border);
-      display: flex; align-items: center;
-      gap: 10px;
-      transition: background var(--trans), border-color var(--trans);
+      flex-shrink: 0; padding: 12px 14px;
+      padding-top: max(12px, env(safe-area-inset-top));
+      background: var(--c-bg1); border-bottom: 1px solid var(--c-brd);
+      display: flex; align-items: center; gap: 10px;
+      transition: background var(--tr), border-color var(--tr);
     }
+    .hd-title { font-size: 14px; font-weight: 800; white-space: nowrap; letter-spacing: -.2px; line-height: 1.2; }
+    .hd-title em { color: var(--c-a); font-style: normal; }
+    .hd-title small { display: block; font-size: 10px; font-weight: 500; color: var(--c-t2); margin-top: 1px; }
 
-    .hd-title {
-      font-size: 15px; font-weight: 800; white-space: nowrap;
-      letter-spacing: -.2px;
-    }
-    .hd-title em { color: var(--c-accent); font-style: normal; }
-
-    /* MODE TOGGLE */
-    .mode-toggle {
-      flex: 1; display: flex; justify-content: center;
-    }
+    .mode-toggle { flex: 1; display: flex; justify-content: center; }
     .mode-pill {
-      display: flex;
-      background: var(--c-bg3);
-      border: 1px solid var(--c-border);
-      border-radius: var(--radius-pill);
-      padding: 3px;
-      gap: 2px;
+      display: flex; background: var(--c-bg3);
+      border: 1px solid var(--c-brd); border-radius: var(--rp); padding: 3px; gap: 2px;
     }
     .mode-btn {
-      padding: 6px 16px;
-      border-radius: var(--radius-pill);
-      border: none; background: transparent;
-      color: var(--c-text1); font-size: 12px; font-weight: 700;
-      cursor: pointer; white-space: nowrap;
-      transition: background var(--trans-fast), color var(--trans-fast), box-shadow var(--trans-fast);
-      letter-spacing: .02em;
+      padding: 6px 14px; border-radius: var(--rp); border: none;
+      background: transparent; color: var(--c-t1);
+      font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap;
+      transition: all var(--tf); letter-spacing: .02em;
     }
-    .mode-btn.on {
-      background: var(--c-accent);
-      color: #fff;
-      box-shadow: 0 2px 14px var(--c-glow);
-    }
+    .mode-btn.on { background: var(--c-a); color: #fff; box-shadow: 0 2px 14px var(--c-glow); }
 
     .hd-actions { display: flex; gap: 6px; flex-shrink: 0; }
-
     .ico-btn {
-      width: 36px; height: 36px;
-      border-radius: var(--radius-sm);
-      background: var(--c-bg3);
-      border: 1px solid var(--c-border);
-      color: var(--c-text1); cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 15px;
-      transition: background var(--trans-fast), color var(--trans-fast), border-color var(--trans-fast);
+      width: 34px; height: 34px; border-radius: var(--rs);
+      background: var(--c-bg3); border: 1px solid var(--c-brd); color: var(--c-t1);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      font-size: 14px; transition: all var(--tf);
     }
-    .ico-btn:hover { background: var(--c-accent); color: #fff; border-color: var(--c-accent); }
+    .ico-btn:hover { background: var(--c-a); color: #fff; border-color: var(--c-a); }
 
-    /* ── QUICK TOPICS ─────────────────────────────── */
+    /* ── QUICK TOPICS ────────────────────────────── */
     #quick-topics {
-      flex-shrink: 0;
-      padding: 10px 14px;
-      display: flex; gap: 8px;
-      overflow-x: auto; -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-      background: var(--c-bg1);
-      border-bottom: 1px solid var(--c-border);
-      transition: background var(--trans), border-color var(--trans);
+      flex-shrink: 0; padding: 9px 13px;
+      display: flex; gap: 7px; overflow-x: auto; -webkit-overflow-scrolling: touch;
+      scrollbar-width: none; background: var(--c-bg1); border-bottom: 1px solid var(--c-brd);
+      transition: background var(--tr), border-color var(--tr);
     }
     #quick-topics::-webkit-scrollbar { display: none; }
-
     .chip {
-      flex-shrink: 0;
-      padding: 7px 14px;
-      background: var(--c-bg3);
-      border: 1px solid var(--c-border);
-      border-radius: var(--radius-pill);
-      color: var(--c-text1); font-size: 12.5px; font-weight: 600;
-      cursor: pointer; white-space: nowrap;
-      transition: all var(--trans-fast);
+      flex-shrink: 0; padding: 6px 13px;
+      background: var(--c-bg3); border: 1px solid var(--c-brd);
+      border-radius: var(--rp); color: var(--c-t1); font-size: 12px; font-weight: 600;
+      cursor: pointer; white-space: nowrap; transition: all var(--tf);
       -webkit-tap-highlight-color: transparent;
     }
-    .chip:hover, .chip:active {
-      background: var(--c-accent); color: #fff; border-color: var(--c-accent);
-      transform: scale(1.03);
-    }
+    .chip:hover, .chip:active { background: var(--c-a); color: #fff; border-color: var(--c-a); transform: scale(1.03); }
 
-    /* ── CHAT AREA ────────────────────────────────── */
+    /* ── CHAT ────────────────────────────────────── */
     #chat {
-      flex: 1;
-      overflow-y: auto; overflow-x: hidden;
-      padding: 18px 14px 14px;
-      display: flex; flex-direction: column; gap: 16px;
-      scroll-behavior: smooth;
-      -webkit-overflow-scrolling: touch;
+      flex: 1; overflow-y: auto; overflow-x: hidden;
+      padding: 16px 13px 12px; display: flex; flex-direction: column; gap: 14px;
+      scroll-behavior: smooth; -webkit-overflow-scrolling: touch;
     }
     #chat::-webkit-scrollbar { width: 3px; }
-    #chat::-webkit-scrollbar-track { background: transparent; }
-    #chat::-webkit-scrollbar-thumb { background: var(--c-border); border-radius: 3px; }
+    #chat::-webkit-scrollbar-thumb { background: var(--c-brd); border-radius: 3px; }
 
-    /* ── EMPTY STATE ──────────────────────────────── */
     .empty {
       flex: 1; display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      text-align: center; padding: 32px 24px;
-      color: var(--c-text1); min-height: 220px;
+      text-align: center; padding: 32px 24px; color: var(--c-t1); min-height: 220px;
     }
-    .empty-icon { font-size: 52px; margin-bottom: 18px; opacity: .75; }
-    .empty h2 { font-size: 20px; color: var(--c-text0); margin-bottom: 10px; font-weight: 700; }
-    .empty p { font-size: 14px; line-height: 1.65; max-width: 300px; color: var(--c-text1); }
+    .empty-icon { font-size: 50px; margin-bottom: 16px; opacity: .7; }
+    .empty h2 { font-size: 19px; color: var(--c-t0); margin-bottom: 8px; font-weight: 700; }
+    .empty p { font-size: 14px; line-height: 1.65; max-width: 300px; color: var(--c-t1); }
 
-    /* ── MESSAGES ─────────────────────────────────── */
-    .msg {
-      display: flex; flex-direction: column; max-width: 88%;
-      animation: msg-in .28s cubic-bezier(.34,1.56,.64,1);
-    }
-    @keyframes msg-in {
-      from { opacity: 0; transform: translateY(8px) scale(.96); }
-      to   { opacity: 1; transform: none; }
-    }
-
+    /* ── MESSAGES ────────────────────────────────── */
+    .msg { display: flex; flex-direction: column; max-width: 88%; animation: mi .28s cubic-bezier(.34,1.56,.64,1); }
+    @keyframes mi { from { opacity:0; transform:translateY(8px) scale(.96); } to { opacity:1; transform:none; } }
     .msg.user { align-self: flex-end; align-items: flex-end; }
     .msg.ai   { align-self: flex-start; align-items: flex-start; }
-
-    .bubble {
-      padding: 11px 16px; border-radius: 20px;
-      font-size: 15px; line-height: 1.62; word-break: break-word;
-    }
-    .msg.user .bubble {
-      background: var(--c-user-bg); color: var(--c-user-text);
-      border-bottom-right-radius: 5px;
-    }
-    .msg.ai .bubble {
-      background: var(--c-ai-bg); color: var(--c-ai-text);
-      border: 1px solid var(--c-border);
-      border-bottom-left-radius: 5px;
-    }
-    .bubble.err {
-      background: var(--c-err) !important;
-      border-color: var(--c-err-border) !important;
-      color: var(--c-err-text) !important;
-    }
-
-    .msg-foot {
-      display: flex; align-items: center; gap: 8px;
-      margin-top: 5px; padding: 0 4px;
-    }
-    .msg-time { font-size: 11px; color: var(--c-text2); }
+    .bubble { padding: 11px 15px; border-radius: 20px; font-size: 15px; line-height: 1.62; word-break: break-word; }
+    .msg.user .bubble { background: var(--c-ub); color: var(--c-ut); border-bottom-right-radius: 5px; }
+    .msg.ai .bubble { background: var(--c-ab); color: var(--c-at); border: 1px solid var(--c-brd); border-bottom-left-radius: 5px; }
+    .bubble.err { background: rgba(239,68,68,.1) !important; border-color: rgba(239,68,68,.3) !important; color: #fca5a5 !important; }
+    .msg-foot { display: flex; align-items: center; gap: 8px; margin-top: 4px; padding: 0 4px; }
+    .msg-time { font-size: 11px; color: var(--c-t2); }
     .copy-btn {
-      background: none; border: none; color: var(--c-text2);
-      cursor: pointer; font-size: 12px; padding: 2px 8px;
-      border-radius: 5px; transition: all var(--trans-fast); white-space: nowrap;
+      background: none; border: none; color: var(--c-t2); cursor: pointer;
+      font-size: 12px; padding: 2px 8px; border-radius: 5px;
+      transition: all var(--tf); white-space: nowrap;
     }
-    .copy-btn:hover { color: var(--c-accent); background: var(--c-glow); }
+    .copy-btn:hover { color: var(--c-a); background: var(--c-glow); }
 
-    /* Markdown in AI bubbles */
-    .bubble h1 { font-size: 17px; font-weight: 800; margin: 10px 0 5px; color: var(--c-accent-h); }
-    .bubble h2 { font-size: 15.5px; font-weight: 800; margin: 9px 0 5px; color: var(--c-accent-h); }
-    .bubble h3 { font-size: 14px; font-weight: 700; margin: 8px 0 4px; color: var(--c-accent-h); }
+    /* Markdown */
+    .bubble h1 { font-size: 17px; font-weight: 800; margin: 10px 0 5px; color: var(--c-ah); }
+    .bubble h2 { font-size: 15.5px; font-weight: 800; margin: 9px 0 5px; color: var(--c-ah); }
+    .bubble h3 { font-size: 14px; font-weight: 700; margin: 8px 0 4px; color: var(--c-ah); }
     .bubble h1:first-child, .bubble h2:first-child, .bubble h3:first-child { margin-top: 0; }
     .bubble strong { font-weight: 700; }
     .bubble em { font-style: italic; }
     .bubble code {
-      background: rgba(255,255,255,.09); padding: 2px 7px;
-      border-radius: 5px; font-size: 12.5px;
-      font-family: 'SF Mono', SFMono-Regular, Consolas, monospace;
+      background: rgba(255,255,255,.09); padding: 2px 6px; border-radius: 5px;
+      font-size: 12.5px; font-family: 'SF Mono', SFMono-Regular, Consolas, monospace;
     }
-    .bubble pre {
-      background: rgba(0,0,0,.3); border: 1px solid var(--c-border);
-      border-radius: 10px; padding: 12px 14px; overflow-x: auto;
-      margin: 8px 0;
-    }
+    .bubble pre { background: rgba(0,0,0,.3); border: 1px solid var(--c-brd); border-radius: 10px; padding: 12px 14px; overflow-x: auto; margin: 8px 0; }
     .bubble pre code { background: none; padding: 0; font-size: 12.5px; }
     .bubble ul, .bubble ol { padding-left: 22px; margin: 6px 0; }
     .bubble li { margin: 3px 0; }
     .bubble p { margin: 6px 0; }
     .bubble p:first-child { margin-top: 0; }
     .bubble p:last-child  { margin-bottom: 0; }
-    .bubble hr { border: none; border-top: 1px solid var(--c-border); margin: 10px 0; }
+    .bubble hr { border: none; border-top: 1px solid var(--c-brd); margin: 10px 0; }
 
-    /* ── TYPING INDICATOR ─────────────────────────── */
+    /* ── TYPING ──────────────────────────────────── */
     .typing {
-      display: flex; align-items: center; gap: 5px;
-      padding: 13px 16px;
-      background: var(--c-ai-bg); border: 1px solid var(--c-border);
+      display: flex; align-items: center; gap: 5px; padding: 12px 15px;
+      background: var(--c-ab); border: 1px solid var(--c-brd);
       border-radius: 20px; border-bottom-left-radius: 5px;
-      width: fit-content;
-      animation: msg-in .28s ease;
+      width: fit-content; animation: mi .28s ease;
     }
-    .t-dot {
-      width: 7px; height: 7px;
-      background: var(--c-accent); border-radius: 50%;
-      animation: tdot 1.25s infinite;
-    }
+    .t-dot { width: 7px; height: 7px; background: var(--c-a); border-radius: 50%; animation: td 1.25s infinite; }
     .t-dot:nth-child(2) { animation-delay: .2s; }
     .t-dot:nth-child(3) { animation-delay: .4s; }
-    @keyframes tdot {
-      0%, 55%, 100% { transform: translateY(0); opacity: .35; }
-      27%           { transform: translateY(-7px); opacity: 1; }
-    }
+    @keyframes td { 0%,55%,100% { transform:translateY(0); opacity:.3; } 27% { transform:translateY(-7px); opacity:1; } }
 
-    /* ── INPUT AREA ───────────────────────────────── */
+    /* ── INPUT ───────────────────────────────────── */
     #input-area {
-      flex-shrink: 0;
-      padding: 10px 14px;
+      flex-shrink: 0; padding: 10px 13px;
       padding-bottom: max(10px, env(safe-area-inset-bottom));
-      background: var(--c-bg1);
-      border-top: 1px solid var(--c-border);
-      transition: background var(--trans), border-color var(--trans);
+      background: var(--c-bg1); border-top: 1px solid var(--c-brd);
+      transition: background var(--tr), border-color var(--tr);
     }
     .input-row { display: flex; align-items: flex-end; gap: 10px; }
-
     #msg-input {
-      flex: 1; min-height: 44px; max-height: 130px;
-      padding: 12px 16px;
-      background: var(--c-bg3);
-      border: 1.5px solid var(--c-border);
-      border-radius: 22px;
-      color: var(--c-text0); font-size: 15px; line-height: 1.4;
-      resize: none; outline: none; overflow-y: auto;
-      font-family: inherit;
-      transition: border-color var(--trans-fast), box-shadow var(--trans-fast);
-      -webkit-appearance: none;
+      flex: 1; min-height: 44px; max-height: 130px; padding: 12px 15px;
+      background: var(--c-bg3); border: 1.5px solid var(--c-brd);
+      border-radius: 22px; color: var(--c-t0); font-size: 15px; line-height: 1.4;
+      resize: none; outline: none; overflow-y: auto; font-family: inherit;
+      transition: border-color var(--tf), box-shadow var(--tf); -webkit-appearance: none;
     }
-    #msg-input:focus {
-      border-color: var(--c-accent);
-      box-shadow: 0 0 0 3.5px var(--c-glow);
-    }
-    #msg-input::placeholder { color: var(--c-text2); }
-
+    #msg-input:focus { border-color: var(--c-a); box-shadow: 0 0 0 3.5px var(--c-glow); }
+    #msg-input::placeholder { color: var(--c-t2); }
     #send-btn {
-      width: 44px; height: 44px; flex-shrink: 0;
-      border-radius: 50%; border: none;
-      background: var(--c-accent); color: #fff;
+      width: 44px; height: 44px; flex-shrink: 0; border-radius: 50%; border: none;
+      background: var(--c-a); color: #fff;
       display: flex; align-items: center; justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 4px 20px var(--c-glow);
-      transition: transform var(--trans-fast), background var(--trans-fast), box-shadow var(--trans-fast), opacity var(--trans-fast);
+      cursor: pointer; box-shadow: 0 4px 20px var(--c-glow);
+      transition: transform var(--tf), background var(--tf), opacity var(--tf);
     }
-    #send-btn:hover { transform: scale(1.08); background: var(--c-accent-h); }
+    #send-btn:hover { transform: scale(1.08); background: var(--c-ah); }
     #send-btn:active { transform: scale(.94); }
     #send-btn:disabled { opacity: .35; cursor: not-allowed; transform: none; }
-    #send-btn svg { pointer-events: none; }
 
-    /* ── MODAL ────────────────────────────────────── */
+    /* ── MODAL ───────────────────────────────────── */
     .overlay {
       position: fixed; inset: 0; z-index: 100;
-      background: var(--c-overlay);
-      backdrop-filter: blur(10px);
+      background: var(--c-ov); backdrop-filter: blur(10px);
       display: flex; align-items: center; justify-content: center;
-      padding: 24px;
-      opacity: 0; pointer-events: none;
-      transition: opacity .25s;
+      padding: 20px; opacity: 0; pointer-events: none; transition: opacity .25s;
     }
     .overlay.open { opacity: 1; pointer-events: all; }
-
     .modal {
-      width: 100%; max-width: 420px;
-      background: var(--c-bg2);
-      border: 1px solid var(--c-border);
-      border-radius: 26px; padding: 32px 28px;
-      transform: translateY(18px) scale(.97);
+      width: 100%; max-width: 480px;
+      background: var(--c-bg2); border: 1px solid var(--c-brd);
+      border-radius: 26px; padding: 30px 26px;
+      transform: translateY(16px) scale(.97);
       transition: transform .25s cubic-bezier(.34,1.56,.64,1);
-      box-shadow: 0 32px 80px var(--c-shadow);
+      box-shadow: 0 32px 80px var(--c-sh);
+      max-height: 92dvh; overflow-y: auto;
     }
     .overlay.open .modal { transform: none; }
-
-    .modal-hd {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 26px;
-    }
-    .modal-hd h2 { font-size: 18px; font-weight: 800; }
-
+    .modal-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    .modal-hd h2 { font-size: 17px; font-weight: 800; }
     .close-btn {
       width: 32px; height: 32px; border-radius: 8px;
-      background: var(--c-bg3); border: 1px solid var(--c-border);
-      color: var(--c-text1); cursor: pointer;
+      background: var(--c-bg3); border: 1px solid var(--c-brd);
+      color: var(--c-t1); cursor: pointer;
       display: flex; align-items: center; justify-content: center;
-      font-size: 16px; font-weight: 700;
-      transition: all var(--trans-fast);
+      font-size: 15px; font-weight: 700; transition: all var(--tf);
     }
-    .close-btn:hover { background: var(--c-accent); color: #fff; border-color: var(--c-accent); }
-
-    .modal-divider {
-      border: none; border-top: 1px solid var(--c-border); margin: 22px 0;
-    }
-
+    .close-btn:hover { background: var(--c-a); color: #fff; border-color: var(--c-a); }
+    .modal-divider { border: none; border-top: 1px solid var(--c-brd); margin: 20px 0; }
     .modal-action {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 12px 14px;
-      background: var(--c-bg3); border: 1px solid var(--c-border);
-      border-radius: var(--radius-sm); margin-bottom: 10px;
-      cursor: pointer; transition: all var(--trans-fast);
+      padding: 11px 14px; background: var(--c-bg3); border: 1px solid var(--c-brd);
+      border-radius: var(--rs); margin-bottom: 8px; cursor: pointer;
+      transition: all var(--tf);
     }
-    .modal-action:hover { border-color: var(--c-accent); background: var(--c-glow); }
-    .modal-action span { font-size: 14px; font-weight: 600; }
-    .modal-action .ma-icon { font-size: 18px; }
+    .modal-action:hover { border-color: var(--c-a); }
+    .modal-action span { font-size: 13.5px; font-weight: 600; }
+    .modal-action .arr { font-size: 14px; color: var(--c-t2); }
 
-    /* ── TOAST / CONFIRM ──────────────────────────── */
+    /* Provider status dots in settings */
+    .prov-status {
+      display: flex; align-items: center; gap: 7px;
+      padding: 10px 13px; background: var(--c-bg3); border: 1px solid var(--c-brd);
+      border-radius: var(--rs); margin-bottom: 7px;
+      cursor: pointer; transition: all var(--tf);
+    }
+    .prov-status:hover { border-color: var(--c-a); }
+    .prov-status.active-prov { border-color: var(--c-a); background: rgba(99,102,241,.08); }
+    .prov-dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+      background: var(--c-t2);
+    }
+    .prov-dot.has-key { background: #22c55e; }
+    .prov-dot.is-active { background: var(--c-a); box-shadow: 0 0 6px var(--c-glow); }
+    .prov-status-name { font-size: 13px; font-weight: 600; flex: 1; }
+    .prov-status-info { font-size: 11px; color: var(--c-t2); }
+
+    /* ── CONFIRM TOAST ───────────────────────────── */
     #confirm-toast {
-      position: fixed; bottom: 90px; left: 50%;
-      transform: translateX(-50%) translateY(16px);
-      background: var(--c-bg2); border: 1px solid var(--c-border);
-      border-radius: 16px; padding: 12px 18px;
-      display: flex; align-items: center; gap: 12px;
-      font-size: 13.5px; z-index: 50;
+      position: fixed; bottom: 86px; left: 50%;
+      transform: translateX(-50%) translateY(14px);
+      background: var(--c-bg2); border: 1px solid var(--c-brd);
+      border-radius: 16px; padding: 11px 16px;
+      display: flex; align-items: center; gap: 10px; font-size: 13px; z-index: 50;
       opacity: 0; pointer-events: none;
       transition: all .22s cubic-bezier(.34,1.56,.64,1);
-      box-shadow: 0 8px 32px var(--c-shadow);
-      white-space: nowrap;
+      box-shadow: 0 8px 32px var(--c-sh); white-space: nowrap;
     }
-    #confirm-toast.show {
-      opacity: 1; pointer-events: all;
-      transform: translateX(-50%) translateY(0);
-    }
-    .t-yes, .t-no {
-      padding: 6px 14px; border-radius: 8px;
-      border: none; cursor: pointer; font-size: 13px; font-weight: 700;
-    }
+    #confirm-toast.show { opacity: 1; pointer-events: all; transform: translateX(-50%) translateY(0); }
+    .t-yes, .t-no { padding: 6px 13px; border-radius: 8px; border: none; cursor: pointer; font-size: 12.5px; font-weight: 700; }
     .t-yes { background: #ef4444; color: #fff; }
-    .t-no  { background: var(--c-bg3); color: var(--c-text1); }
+    .t-no  { background: var(--c-bg3); color: var(--c-t1); }
 
-    /* ── OFFLINE BANNER ───────────────────────────── */
+    /* ── OFFLINE ─────────────────────────────────── */
     #offline-bar {
       position: fixed; top: 0; left: 0; right: 0; z-index: 200;
       padding: 9px 16px; background: #b91c1c; color: #fff;
@@ -525,54 +380,44 @@
     }
     #offline-bar.show { transform: none; }
 
-    /* ── MODE FLASH ───────────────────────────────── */
-    #mode-flash {
-      position: fixed; inset: 0; z-index: 90;
-      pointer-events: none; opacity: 0;
-      transition: opacity .15s;
-    }
+    /* ── MODE FLASH ──────────────────────────────── */
+    #mode-flash { position: fixed; inset: 0; z-index: 90; pointer-events: none; opacity: 0; transition: opacity .15s; }
     #mode-flash.pop { opacity: .12; }
 
-    /* ── EXPORT NOTIFICATION ──────────────────────── */
+    /* ── NOTIF ───────────────────────────────────── */
     #notif {
-      position: fixed; bottom: 90px; right: 16px;
-      background: var(--c-bg2); border: 1px solid var(--c-accent);
-      border-radius: 12px; padding: 10px 16px;
-      font-size: 13px; font-weight: 600; color: var(--c-accent);
+      position: fixed; bottom: 86px; right: 14px;
+      background: var(--c-bg2); border: 1px solid var(--c-a);
+      border-radius: 12px; padding: 9px 15px;
+      font-size: 13px; font-weight: 600; color: var(--c-a);
       z-index: 60; opacity: 0; transform: translateY(8px);
       transition: all .22s; pointer-events: none;
       box-shadow: 0 4px 24px var(--c-glow);
     }
     #notif.show { opacity: 1; transform: none; }
 
-    /* ── RESPONSIVE ───────────────────────────────── */
+    /* ── RESPONSIVE ──────────────────────────────── */
     @media (max-width: 360px) {
-      .mode-btn  { padding: 5px 11px; font-size: 11px; }
-      .hd-title  { font-size: 13px; }
-      .ob-card   { padding: 36px 22px 28px; }
+      .mode-btn  { padding: 5px 10px; font-size: 11px; }
+      .hd-title  { font-size: 12.5px; }
+      .ob-card   { padding: 32px 20px 26px; }
     }
-
     @media (min-width: 768px) {
-      #app { max-width: 680px; margin: 0 auto; }
-      body { background: #060610; }
-      body.biz { background: #040d09; }
+      #app { max-width: 700px; margin: 0 auto; }
+      body { background: #06060f; }
+      body.biz { background: #040d08; }
     }
   </style>
 </head>
 <body>
 
-<!-- ── MODE FLASH OVERLAY ────────────────────────── -->
 <div id="mode-flash"></div>
-
-<!-- ── OFFLINE BANNER ───────────────────────────── -->
 <div id="offline-bar">📡 Kein Internet – KI nicht verfügbar</div>
-
-<!-- ── NOTIFICATION ─────────────────────────────── -->
 <div id="notif"></div>
 
-<!-- ═══════════════════════════════════════════════ -->
-<!--  SCREEN 1: ONBOARDING                          -->
-<!-- ═══════════════════════════════════════════════ -->
+<!-- ══════════════════════════════════════════════
+     SCREEN 1: ONBOARDING
+══════════════════════════════════════════════ -->
 <div id="onboarding" class="screen active">
   <div class="ob-card">
     <div class="ob-logo">
@@ -583,56 +428,58 @@
         <line x1="24" y1="18" x2="20" y2="18" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
       </svg>
     </div>
+    <h1>🧠 <em>KI</em> Coach</h1>
+    <p class="ob-sub">Wähle deinen KI-Anbieter, gib deinen API-Key ein und starte deinen persönlichen Coach.</p>
 
-    <h1><span>KI</span> Coach</h1>
-    <p class="ob-sub">
-      Dein persönlicher KI-Lebenscoach &amp; Business-Berater.<br>
-      Gib deinen Anthropic API-Key ein, um zu starten.
-    </p>
+    <p class="sect-label">1 · KI-Anbieter wählen</p>
+    <div class="prov-grid" id="ob-prov-grid"></div>
 
     <div class="field">
-      <label>Anthropic API-Key</label>
+      <p class="sect-label">2 · API-Key eingeben</p>
       <div class="inp-wrap">
-        <input type="password" id="ob-key" placeholder="sk-ant-api03-…" autocomplete="off" spellcheck="false">
-        <button class="eye-btn" id="ob-eye" type="button" aria-label="Key anzeigen">👁</button>
+        <input type="password" id="ob-key" autocomplete="off" spellcheck="false">
+        <button class="eye-btn" id="ob-eye" type="button">👁</button>
       </div>
+      <span class="key-link">Key holen: <a id="ob-docs-link" href="#" target="_blank" rel="noopener">—</a></span>
+    </div>
+
+    <div class="field">
+      <p class="sect-label">3 · Modell wählen</p>
+      <select class="sel-input" id="ob-model"></select>
     </div>
 
     <button class="btn-primary" id="ob-start">Jetzt starten →</button>
-
-    <p class="sec-note">
-      🔒 Dein API-Key wird ausschließlich lokal in deinem Browser gespeichert
-      und niemals an Dritte weitergegeben.
-    </p>
+    <p class="sec-note">🔒 Alle Keys werden nur lokal in deinem Browser gespeichert und niemals weitergegeben.</p>
   </div>
 </div>
 
 
-<!-- ═══════════════════════════════════════════════ -->
-<!--  SCREEN 2: MAIN APP                            -->
-<!-- ═══════════════════════════════════════════════ -->
+<!-- ══════════════════════════════════════════════
+     SCREEN 2: MAIN APP
+══════════════════════════════════════════════ -->
 <div id="app" class="screen">
 
-  <!-- HEADER -->
   <header>
-    <div class="hd-title">🧠 <em>KI</em> Coach</div>
+    <div class="hd-title">
+      🧠 <em>KI</em> Coach
+      <small id="hd-model-tag">–</small>
+    </div>
 
     <div class="mode-toggle">
       <div class="mode-pill">
-        <button class="mode-btn on" id="btn-priv" data-mode="private">🏠 Privat</button>
-        <button class="mode-btn"    id="btn-biz"  data-mode="business">💼 Business</button>
+        <button class="mode-btn on" id="btn-priv">🏠 Privat</button>
+        <button class="mode-btn"    id="btn-biz">💼 Business</button>
       </div>
     </div>
 
     <div class="hd-actions">
       <button class="ico-btn" id="btn-clear" title="Chat löschen">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/>
-          <path d="M9 6V4h6v2"/>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/>
         </svg>
       </button>
       <button class="ico-btn" id="btn-settings" title="Einstellungen">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="3"/>
           <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
         </svg>
@@ -640,29 +487,18 @@
     </div>
   </header>
 
-  <!-- QUICK TOPICS -->
   <div id="quick-topics"></div>
-
-  <!-- CHAT -->
   <div id="chat"></div>
 
-  <!-- CONFIRM TOAST -->
   <div id="confirm-toast">
     <span>Chat wirklich löschen?</span>
     <button class="t-yes" id="t-yes">Löschen</button>
-    <button class="t-no"  id="t-no">Abbrechen</button>
+    <button class="t-no"  id="t-no">Nein</button>
   </div>
 
-  <!-- INPUT -->
   <div id="input-area">
     <div class="input-row">
-      <textarea
-        id="msg-input"
-        placeholder="Schreib deine Frage…"
-        rows="1"
-        maxlength="3000"
-        aria-label="Nachricht eingeben"
-      ></textarea>
+      <textarea id="msg-input" placeholder="Schreib deine Frage…" rows="1" maxlength="3000" aria-label="Nachricht"></textarea>
       <button id="send-btn" aria-label="Senden">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <line x1="22" y1="2" x2="11" y2="13"/>
@@ -674,67 +510,182 @@
 </div>
 
 
-<!-- ═══════════════════════════════════════════════ -->
-<!--  MODAL: SETTINGS                               -->
-<!-- ═══════════════════════════════════════════════ -->
+<!-- ══════════════════════════════════════════════
+     MODAL: SETTINGS
+══════════════════════════════════════════════ -->
 <div class="overlay" id="settings-overlay">
-  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+  <div class="modal">
     <div class="modal-hd">
-      <h2 id="settings-title">⚙️ Einstellungen</h2>
-      <button class="close-btn" id="close-settings" aria-label="Schließen">✕</button>
+      <h2>⚙️ Einstellungen</h2>
+      <button class="close-btn" id="close-settings">✕</button>
     </div>
 
-    <div class="field">
-      <label>API-Key ändern</label>
-      <div class="inp-wrap">
-        <input type="password" id="s-key" placeholder="sk-ant-api03-…" autocomplete="off" spellcheck="false">
-        <button class="eye-btn" id="s-eye" type="button" aria-label="Key anzeigen">👁</button>
+    <!-- Active provider picker -->
+    <p class="sect-label">Aktiver KI-Anbieter &amp; Modell</p>
+    <div class="prov-grid" id="s-prov-grid" style="margin-bottom:14px;"></div>
+
+    <div class="field-row">
+      <div class="field" style="flex:2;">
+        <div class="inp-wrap">
+          <input type="password" id="s-key" autocomplete="off" spellcheck="false">
+          <button class="eye-btn" id="s-eye" type="button">👁</button>
+        </div>
+      </div>
+      <div class="field" style="flex:2;">
+        <select class="sel-input" id="s-model"></select>
       </div>
     </div>
-    <button class="btn-primary" id="s-save">Speichern</button>
+    <button class="btn-primary" id="s-save" style="margin-bottom:0;">Übernehmen ✓</button>
+
+    <hr class="modal-divider">
+
+    <!-- All configured providers overview -->
+    <p class="sect-label">Alle konfigurierten Anbieter</p>
+    <div id="s-prov-list"></div>
 
     <hr class="modal-divider">
 
     <div class="modal-action" id="s-export">
-      <span>📋 Gespräch exportieren</span>
-      <span class="ma-icon">→</span>
+      <span>📥 Gespräch exportieren (.txt)</span>
+      <span class="arr">→</span>
     </div>
-    <div class="modal-action" id="s-export-copy">
-      <span>📄 Gespräch kopieren</span>
-      <span class="ma-icon">→</span>
+    <div class="modal-action" id="s-copy-conv">
+      <span>📋 Gespräch kopieren</span>
+      <span class="arr">→</span>
     </div>
 
-    <hr class="modal-divider">
-
-    <p class="sec-note">
-      Der API-Key wird nur lokal im Browser (localStorage) gespeichert
-      und verlässt dein Gerät nicht.
+    <p class="sec-note" style="margin-top:16px;">
+      Keys werden nur lokal im Browser (localStorage) gespeichert und verlassen dein Gerät nicht.
     </p>
   </div>
 </div>
 
 
 <script>
-/* ═══════════════════════════════════════════════════
-   CONSTANTS
+/* ══════════════════════════════════════════════════
+   PROVIDERS
+══════════════════════════════════════════════════ */
+
+const PROVIDERS = {
+  anthropic: {
+    name: 'Anthropic',     icon: '🔮',
+    placeholder: 'sk-ant-api03-…',
+    docsUrl: 'https://console.anthropic.com/settings/keys',
+    docsLabel: 'console.anthropic.com',
+    format: 'anthropic',
+    url: 'https://api.anthropic.com/v1/messages',
+    models: [
+      { id: 'claude-sonnet-4-6',        name: 'Claude Sonnet 4.6' },
+      { id: 'claude-opus-4-8',           name: 'Claude Opus 4.8' },
+      { id: 'claude-haiku-4-5-20251001', name: 'Claude Haiku 4.5' },
+    ],
+  },
+  openai: {
+    name: 'OpenAI',        icon: '🤖',
+    placeholder: 'sk-…',
+    docsUrl: 'https://platform.openai.com/api-keys',
+    docsLabel: 'platform.openai.com',
+    format: 'openai',
+    url: 'https://api.openai.com/v1/chat/completions',
+    models: [
+      { id: 'gpt-4o',      name: 'GPT-4o' },
+      { id: 'gpt-4o-mini', name: 'GPT-4o Mini' },
+      { id: 'o1',          name: 'o1' },
+      { id: 'o3-mini',     name: 'o3-mini' },
+    ],
+  },
+  nvidia: {
+    name: 'NVIDIA NIM',    icon: '⚡',
+    placeholder: 'nvapi-…',
+    docsUrl: 'https://build.nvidia.com/explore/discover',
+    docsLabel: 'build.nvidia.com',
+    format: 'openai',
+    url: 'https://integrate.api.nvidia.com/v1/chat/completions',
+    models: [
+      { id: 'meta/llama-3.1-405b-instruct',          name: 'Llama 3.1 405B' },
+      { id: 'meta/llama-3.3-70b-instruct',            name: 'Llama 3.3 70B' },
+      { id: 'nvidia/llama-3.1-nemotron-70b-instruct', name: 'Nemotron 70B' },
+      { id: 'mistralai/mistral-large-2-instruct',     name: 'Mistral Large' },
+      { id: 'google/gemma-2-27b-it',                  name: 'Gemma 2 27B' },
+    ],
+  },
+  google: {
+    name: 'Google Gemini', icon: '✨',
+    placeholder: 'AIzaSy…',
+    docsUrl: 'https://aistudio.google.com/app/apikey',
+    docsLabel: 'aistudio.google.com',
+    format: 'google',
+    url: 'https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent',
+    models: [
+      { id: 'gemini-2.0-flash',   name: 'Gemini 2.0 Flash' },
+      { id: 'gemini-1.5-pro',     name: 'Gemini 1.5 Pro' },
+      { id: 'gemini-1.5-flash',   name: 'Gemini 1.5 Flash' },
+    ],
+  },
+  groq: {
+    name: 'Groq',          icon: '🚀',
+    placeholder: 'gsk_…',
+    docsUrl: 'https://console.groq.com/keys',
+    docsLabel: 'console.groq.com',
+    format: 'openai',
+    url: 'https://api.groq.com/openai/v1/chat/completions',
+    models: [
+      { id: 'llama-3.3-70b-versatile',  name: 'Llama 3.3 70B' },
+      { id: 'llama-3.1-8b-instant',     name: 'Llama 3.1 8B (schnell)' },
+      { id: 'mixtral-8x7b-32768',       name: 'Mixtral 8x7B' },
+      { id: 'gemma2-9b-it',             name: 'Gemma 2 9B' },
+    ],
+  },
+  mistral: {
+    name: 'Mistral AI',    icon: '🌪️',
+    placeholder: '…',
+    docsUrl: 'https://console.mistral.ai/api-keys/',
+    docsLabel: 'console.mistral.ai',
+    format: 'openai',
+    url: 'https://api.mistral.ai/v1/chat/completions',
+    models: [
+      { id: 'mistral-large-latest',  name: 'Mistral Large' },
+      { id: 'mistral-medium-latest', name: 'Mistral Medium' },
+      { id: 'mistral-small-latest',  name: 'Mistral Small' },
+    ],
+  },
+  openrouter: {
+    name: 'OpenRouter',    icon: '🔀',
+    placeholder: 'sk-or-…',
+    docsUrl: 'https://openrouter.ai/keys',
+    docsLabel: 'openrouter.ai',
+    format: 'openai',
+    url: 'https://openrouter.ai/api/v1/chat/completions',
+    models: [
+      { id: 'anthropic/claude-sonnet-4-6',           name: 'Claude Sonnet 4.6' },
+      { id: 'openai/gpt-4o',                          name: 'GPT-4o' },
+      { id: 'google/gemini-pro-1.5',                  name: 'Gemini 1.5 Pro' },
+      { id: 'meta-llama/llama-3.1-405b-instruct',    name: 'Llama 3.1 405B' },
+      { id: 'mistralai/mistral-large',                name: 'Mistral Large' },
+      { id: 'nvidia/llama-3.1-nemotron-70b-instruct', name: 'Nemotron 70B' },
+    ],
+  },
+};
+
+/* ══════════════════════════════════════════════════
+   SYSTEM PROMPTS
 ══════════════════════════════════════════════════ */
 
 const SYSTEM_PROMPTS = {
   private:
-    `Du bist ein persönlicher Lebenscoach der wie ein erfahrener Freund spricht. ` +
-    `Du berätst zu: Steuern als Privatperson, Ernährung & Gesundheit, persönliche ` +
-    `Finanzen, Altersvorsorge, Investitionen, Familie, Lifestyle, Produktivität und ` +
-    `persönlicher Entwicklung. Berücksichtige immer die aktuelle wirtschaftliche Lage, ` +
-    `aktuelle Gesetze und Trends. Antworte direkt, konkret und umsetzbar. Gib am Ende ` +
-    `immer 2-3 sofortige nächste Schritte. Nutze Emojis sparsam aber gezielt.`,
-
+    'Du bist ein persönlicher Lebenscoach der wie ein erfahrener Freund spricht. ' +
+    'Du berätst zu: Steuern als Privatperson, Ernährung & Gesundheit, persönliche ' +
+    'Finanzen, Altersvorsorge, Investitionen, Familie, Lifestyle, Produktivität und ' +
+    'persönlicher Entwicklung. Berücksichtige immer die aktuelle wirtschaftliche Lage, ' +
+    'aktuelle Gesetze und Trends. Antworte direkt, konkret und umsetzbar. Gib am Ende ' +
+    'immer 2-3 sofortige nächste Schritte. Nutze Emojis sparsam aber gezielt.',
   business:
-    `Du bist ein erfahrener Unternehmensberater und Business-Coach. Du berätst zu: ` +
-    `Unternehmensstrategie, Steuern als Unternehmer, Marketing & Vertrieb, Personal ` +
-    `& Führung, Cashflow & Investitionen, Digitalisierung & KI-Tools, Förderprogramme ` +
-    `und Wachstumsstrategien. Berücksichtige aktuelle Markttrends, Wirtschaftslage und ` +
-    `Gesetzesänderungen. Antworte strategisch, mit klaren Prioritäten und konkreten ` +
-    `Maßnahmen. Strukturiere komplexe Antworten mit Überschriften.`,
+    'Du bist ein erfahrener Unternehmensberater und Business-Coach. Du berätst zu: ' +
+    'Unternehmensstrategie, Steuern als Unternehmer, Marketing & Vertrieb, Personal ' +
+    '& Führung, Cashflow & Investitionen, Digitalisierung & KI-Tools, Förderprogramme ' +
+    'und Wachstumsstrategien. Berücksichtige aktuelle Markttrends, Wirtschaftslage und ' +
+    'Gesetzesänderungen. Antworte strategisch, mit klaren Prioritäten und konkreten ' +
+    'Maßnahmen. Strukturiere komplexe Antworten mit Überschriften.',
 };
 
 const QUICK_TOPICS = {
@@ -745,92 +696,164 @@ const QUICK_TOPICS = {
     { label: '🧘 Lifestyle',    prompt: 'Welche Lifestyle-Routinen haben den größten Einfluss auf Produktivität, Gesundheit und Wohlbefinden?' },
   ],
   business: [
-    { label: '📊 Strategie',  prompt: 'Hilf mir, eine klare Unternehmensstrategie für die nächsten 12 Monate zu entwickeln. Was sind die wichtigsten strategischen Hebel?' },
-    { label: '💼 Steuern',    prompt: 'Welche aktuellen Steueroptimierungen sind für Unternehmer besonders relevant und umsetzbar?' },
+    { label: '📊 Strategie',  prompt: 'Hilf mir, eine klare Unternehmensstrategie für die nächsten 12 Monate zu entwickeln. Was sind die wichtigsten Hebel?' },
+    { label: '💼 Steuern',    prompt: 'Welche aktuellen Steueroptimierungen sind für Unternehmer besonders relevant und sofort umsetzbar?' },
     { label: '🚀 Wachstum',   prompt: 'Welche konkreten Wachstumsstrategien empfiehlst du für ein kleines bis mittelständisches Unternehmen im aktuellen Marktumfeld?' },
     { label: '👥 Personal',   prompt: 'Wie gewinne und binde ich in der aktuellen Arbeitsmarktsituation die besten Mitarbeiter? Gib mir konkrete Maßnahmen.' },
   ],
 };
 
-/* ═══════════════════════════════════════════════════
+/* ══════════════════════════════════════════════════
    STATE
 ══════════════════════════════════════════════════ */
 
-let apiKey      = localStorage.getItem('kic_key') || '';
-let mode        = localStorage.getItem('kic_mode') || 'private';
-let busy        = false;
-let typingNode  = null;
-let toastTimer  = null;
+// providerKeys: { anthropic: 'sk-ant-…', openai: 'sk-…', … }
+let providerKeys = {};
+let activeProvider = 'anthropic';
+let activeModel    = PROVIDERS.anthropic.models[0].id;
+let mode     = 'private';
+let busy     = false;
+let typingEl = null;
+let toastTimer = null;
 
 const convs = { private: [], business: [] };
+
+// Load persisted state
 try {
-  const raw = localStorage.getItem('kic_convs');
-  if (raw) {
-    const p = JSON.parse(raw);
+  const s = localStorage.getItem('kic_state');
+  if (s) {
+    const p = JSON.parse(s);
+    if (p.keys)     providerKeys   = p.keys;
+    if (p.prov)     activeProvider = p.prov;
+    if (p.model)    activeModel    = p.model;
+    if (p.mode)     mode           = p.mode;
+  }
+  const c = localStorage.getItem('kic_convs');
+  if (c) {
+    const p = JSON.parse(c);
     if (Array.isArray(p.private))  convs.private  = p.private.slice(-60);
     if (Array.isArray(p.business)) convs.business = p.business.slice(-60);
   }
 } catch (_) {}
 
-/* ═══════════════════════════════════════════════════
-   DOM
+/* ══════════════════════════════════════════════════
+   DOM REFS
 ══════════════════════════════════════════════════ */
 
 const $ = id => document.getElementById(id);
+const obScreen    = $('onboarding');
+const appScreen   = $('app');
+const obKey       = $('ob-key');
+const obEye       = $('ob-eye');
+const obStart     = $('ob-start');
+const obModel     = $('ob-model');
+const obDocsLink  = $('ob-docs-link');
+const obProvGrid  = $('ob-prov-grid');
+const btnPriv     = $('btn-priv');
+const btnBiz      = $('btn-biz');
+const btnClear    = $('btn-clear');
+const btnSettings = $('btn-settings');
+const quickTopics = $('quick-topics');
+const chat        = $('chat');
+const confirmToast= $('confirm-toast');
+const tYes        = $('t-yes');
+const tNo         = $('t-no');
+const msgInput    = $('msg-input');
+const sendBtn     = $('send-btn');
+const overlay     = $('settings-overlay');
+const closeSet    = $('close-settings');
+const sProvGrid   = $('s-prov-grid');
+const sProvList   = $('s-prov-list');
+const sKey        = $('s-key');
+const sEye        = $('s-eye');
+const sModel      = $('s-model');
+const sSave       = $('s-save');
+const sExport     = $('s-export');
+const sCopyConv   = $('s-copy-conv');
+const offlineBar  = $('offline-bar');
+const modeFlash   = $('mode-flash');
+const notif       = $('notif');
+const hdModelTag  = $('hd-model-tag');
 
-const obScreen   = $('onboarding');
-const appScreen  = $('app');
-const obKey      = $('ob-key');
-const obEye      = $('ob-eye');
-const obStart    = $('ob-start');
-const btnPriv    = $('btn-priv');
-const btnBiz     = $('btn-biz');
-const btnClear   = $('btn-clear');
-const btnSettings= $('btn-settings');
-const quickTopics= $('quick-topics');
-const chat       = $('chat');
-const confirmToast=$('confirm-toast');
-const tYes       = $('t-yes');
-const tNo        = $('t-no');
-const msgInput   = $('msg-input');
-const sendBtn    = $('send-btn');
-const overlay    = $('settings-overlay');
-const closeSet   = $('close-settings');
-const sKey       = $('s-key');
-const sEye       = $('s-eye');
-const sSave      = $('s-save');
-const sExport    = $('s-export');
-const sExportCopy= $('s-export-copy');
-const offlineBar = $('offline-bar');
-const modeFlash  = $('mode-flash');
-const notif      = $('notif');
-
-/* ═══════════════════════════════════════════════════
+/* ══════════════════════════════════════════════════
    BOOT
 ══════════════════════════════════════════════════ */
 
 function boot() {
-  // Handle ?mode= shortcut from manifest shortcuts
   const urlMode = new URLSearchParams(location.search).get('mode');
   if (urlMode === 'business' || urlMode === 'private') mode = urlMode;
 
-  if (apiKey) {
-    launchApp();
-  } else {
-    obScreen.classList.add('active');
-  }
-
-  // PWA service worker
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(() => {});
   }
 
-  // Online / offline
-  const syncOnline = () => offlineBar.classList.toggle('show', !navigator.onLine);
-  window.addEventListener('online',  syncOnline);
-  window.addEventListener('offline', syncOnline);
-  syncOnline();
+  const syncNet = () => offlineBar.classList.toggle('show', !navigator.onLine);
+  window.addEventListener('online',  syncNet);
+  window.addEventListener('offline', syncNet);
+  syncNet();
+
+  // Build onboarding provider grid
+  buildProvGrid(obProvGrid, activeProvider, prov => {
+    activeProvider = prov;
+    syncObFields();
+  });
+
+  syncObFields();
+
+  if (providerKeys[activeProvider]) {
+    launchApp();
+  } else {
+    obScreen.classList.add('active');
+  }
 }
+
+/* ══════════════════════════════════════════════════
+   PROVIDER GRID BUILDER (reusable)
+══════════════════════════════════════════════════ */
+
+function buildProvGrid(container, selected, onSelect) {
+  container.innerHTML = Object.entries(PROVIDERS).map(([id, p]) =>
+    `<button class="prov-btn${id === selected ? ' on' : ''}" data-prov="${id}">${p.icon} ${p.name}</button>`
+  ).join('');
+
+  container.querySelectorAll('.prov-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      container.querySelectorAll('.prov-btn').forEach(b => b.classList.remove('on'));
+      btn.classList.add('on');
+      onSelect(btn.dataset.prov);
+    });
+  });
+}
+
+/* ══════════════════════════════════════════════════
+   SYNC ONBOARDING FIELDS
+══════════════════════════════════════════════════ */
+
+function syncObFields() {
+  const prov = PROVIDERS[activeProvider];
+  obKey.placeholder = prov.placeholder;
+  obKey.value = providerKeys[activeProvider] || '';
+  obDocsLink.href = prov.docsUrl;
+  obDocsLink.textContent = prov.docsLabel;
+  populateModelSelect(obModel, activeProvider, activeModel);
+}
+
+/* ══════════════════════════════════════════════════
+   POPULATE MODEL SELECT
+══════════════════════════════════════════════════ */
+
+function populateModelSelect(sel, provId, currentModel) {
+  const models = PROVIDERS[provId].models;
+  sel.innerHTML = models.map(m =>
+    `<option value="${m.id}"${m.id === currentModel ? ' selected' : ''}>${m.name}</option>`
+  ).join('');
+  // fallback: select first if currentModel not in list
+  if (!models.find(m => m.id === currentModel)) sel.selectedIndex = 0;
+}
+
+/* ══════════════════════════════════════════════════
+   LAUNCH APP
+══════════════════════════════════════════════════ */
 
 function launchApp() {
   obScreen.classList.remove('active');
@@ -838,15 +861,16 @@ function launchApp() {
   applyMode(mode, false);
   renderTopics();
   renderChat();
+  updateHeaderTag();
 }
 
-/* ═══════════════════════════════════════════════════
+/* ══════════════════════════════════════════════════
    MODE
 ══════════════════════════════════════════════════ */
 
 function applyMode(m, animate = true) {
   mode = m;
-  localStorage.setItem('kic_mode', m);
+  persistState();
 
   if (animate) {
     modeFlash.style.background = m === 'business' ? '#10b981' : '#6366f1';
@@ -857,48 +881,53 @@ function applyMode(m, animate = true) {
   document.body.classList.toggle('biz', m === 'business');
   btnPriv.classList.toggle('on', m === 'private');
   btnBiz.classList.toggle('on',  m === 'business');
-
-  document.querySelector('#themeColorMeta').content = m === 'business' ? '#07120e' : '#0d0d1a';
+  $('themeColorMeta').content = m === 'business' ? '#07120e' : '#0d0d1a';
 
   renderTopics();
   renderChat();
 }
 
-/* ═══════════════════════════════════════════════════
+/* ══════════════════════════════════════════════════
+   HEADER MODEL TAG
+══════════════════════════════════════════════════ */
+
+function updateHeaderTag() {
+  const prov  = PROVIDERS[activeProvider];
+  const model = PROVIDERS[activeProvider].models.find(m => m.id === activeModel);
+  hdModelTag.textContent = `${prov.icon} ${model ? model.name : activeModel}`;
+}
+
+/* ══════════════════════════════════════════════════
    QUICK TOPICS
 ══════════════════════════════════════════════════ */
 
 function renderTopics() {
-  quickTopics.innerHTML = QUICK_TOPICS[mode]
-    .map(t => `<button class="chip" data-p="${encodeURIComponent(t.prompt)}">${t.label}</button>`)
-    .join('');
-
+  quickTopics.innerHTML = QUICK_TOPICS[mode].map(t =>
+    `<button class="chip" data-p="${encodeURIComponent(t.prompt)}">${t.label}</button>`
+  ).join('');
   quickTopics.querySelectorAll('.chip').forEach(c =>
     c.addEventListener('click', () => send(decodeURIComponent(c.dataset.p)))
   );
 }
 
-/* ═══════════════════════════════════════════════════
-   CHAT RENDER
+/* ══════════════════════════════════════════════════
+   CHAT
 ══════════════════════════════════════════════════ */
 
 function renderChat() {
   const msgs = convs[mode];
-
   if (!msgs.length) {
     const biz = mode === 'business';
-    chat.innerHTML = `
-      <div class="empty">
-        <div class="empty-icon">${biz ? '💼' : '🏠'}</div>
-        <h2>${biz ? 'Business Coach' : 'Lebens Coach'}</h2>
-        <p>${biz
-          ? 'Dein strategischer Partner für Unternehmenserfolg. Frag mich alles über Strategie, Steuern, Wachstum und mehr.'
-          : 'Dein persönlicher Begleiter für ein besseres Leben. Frag mich alles über Steuern, Finanzen, Gesundheit und mehr.'
-        }</p>
-      </div>`;
+    chat.innerHTML = `<div class="empty">
+      <div class="empty-icon">${biz ? '💼' : '🏠'}</div>
+      <h2>${biz ? 'Business Coach' : 'Lebens Coach'}</h2>
+      <p>${biz
+        ? 'Dein strategischer Partner für Unternehmenserfolg. Frag mich alles über Strategie, Steuern, Wachstum und mehr.'
+        : 'Dein persönlicher Begleiter für ein besseres Leben. Frag mich alles über Steuern, Finanzen, Gesundheit und mehr.'
+      }</p>
+    </div>`;
     return;
   }
-
   chat.innerHTML = msgs.map((m, i) => msgHTML(m, i)).join('');
   scrollDown();
 }
@@ -911,9 +940,8 @@ function msgHTML(m, i) {
       <div class="msg-foot"><span class="msg-time">${t}</span></div>
     </div>`;
   }
-  const body = m.err ? escHtml(m.text) : md(m.text);
-  const copyBtn = m.err ? '' :
-    `<button class="copy-btn" onclick="copyMsg(${i})">📋 Kopieren</button>`;
+  const body = m.err ? escHtml(m.text) : mdRender(m.text);
+  const copyBtn = m.err ? '' : `<button class="copy-btn" onclick="copyMsg(${i})">📋 Kopieren</button>`;
   return `<div class="msg ai">
     <div class="bubble${m.err ? ' err' : ''}">${body}</div>
     <div class="msg-foot"><span class="msg-time">${t}</span>${copyBtn}</div>
@@ -922,9 +950,9 @@ function msgHTML(m, i) {
 
 function appendMsg(m, i) {
   chat.querySelector('.empty')?.remove();
-  const wrap = document.createElement('div');
-  wrap.innerHTML = msgHTML(m, i);
-  chat.appendChild(wrap.firstElementChild);
+  const d = document.createElement('div');
+  d.innerHTML = msgHTML(m, i);
+  chat.appendChild(d.firstElementChild);
   scrollDown();
 }
 
@@ -932,34 +960,29 @@ function scrollDown() {
   requestAnimationFrame(() => { chat.scrollTop = chat.scrollHeight; });
 }
 
-/* ═══════════════════════════════════════════════════
-   TYPING INDICATOR
+/* ══════════════════════════════════════════════════
+   TYPING
 ══════════════════════════════════════════════════ */
 
 function showTyping() {
   chat.querySelector('.empty')?.remove();
-  typingNode = document.createElement('div');
-  typingNode.className = 'msg ai';
-  typingNode.innerHTML = `<div class="typing">
-    <div class="t-dot"></div><div class="t-dot"></div><div class="t-dot"></div>
-  </div>`;
-  chat.appendChild(typingNode);
+  typingEl = document.createElement('div');
+  typingEl.className = 'msg ai';
+  typingEl.innerHTML = `<div class="typing"><div class="t-dot"></div><div class="t-dot"></div><div class="t-dot"></div></div>`;
+  chat.appendChild(typingEl);
   scrollDown();
 }
+function hideTyping() { typingEl?.remove(); typingEl = null; }
 
-function hideTyping() {
-  typingNode?.remove();
-  typingNode = null;
-}
-
-/* ═══════════════════════════════════════════════════
-   SEND / API
+/* ══════════════════════════════════════════════════
+   SEND
 ══════════════════════════════════════════════════ */
 
 async function send(text) {
   text = text.trim();
   if (!text || busy) return;
-  if (!apiKey) { alert('Bitte zuerst API-Key eingeben!'); return; }
+  const key = providerKeys[activeProvider];
+  if (!key) { showNotif('Kein API-Key für diesen Anbieter!'); return; }
   if (!navigator.onLine) { showNotif('Kein Internet!'); return; }
 
   busy = true;
@@ -967,28 +990,26 @@ async function send(text) {
   autoResize();
   sendBtn.disabled = true;
 
-  // User bubble
   const uMsg = { role: 'user', text, ts: Date.now() };
   convs[mode].push(uMsg);
   appendMsg(uMsg, convs[mode].length - 1);
-  persist();
+  persistConvs();
 
-  // Typing
   showTyping();
 
   try {
-    const reply = await callAPI();
+    const reply = await callAPI(key);
     hideTyping();
     const aMsg = { role: 'assistant', text: reply, ts: Date.now() };
     convs[mode].push(aMsg);
     appendMsg(aMsg, convs[mode].length - 1);
-    persist();
+    persistConvs();
   } catch (e) {
     hideTyping();
     const eMsg = { role: 'assistant', text: e.message, ts: Date.now(), err: true };
     convs[mode].push(eMsg);
     appendMsg(eMsg, convs[mode].length - 1);
-    persist();
+    persistConvs();
   }
 
   busy = false;
@@ -996,167 +1017,176 @@ async function send(text) {
   msgInput.focus();
 }
 
-async function callAPI() {
-  // Build message list (exclude error messages for context)
-  const messages = convs[mode]
+/* ══════════════════════════════════════════════════
+   API LAYER – multi-provider
+══════════════════════════════════════════════════ */
+
+function buildConvMessages() {
+  return convs[mode]
     .filter(m => !m.err)
     .map(m => ({ role: m.role, content: m.text }));
+}
 
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
+async function callAPI(key) {
+  const prov = PROVIDERS[activeProvider];
+  switch (prov.format) {
+    case 'anthropic': return callAnthropic(prov, key);
+    case 'google':    return callGoogle(prov, key);
+    default:          return callOpenAI(prov, key);
+  }
+}
+
+async function callAnthropic(prov, key) {
+  const messages = buildConvMessages();
+  const res = await fetch(prov.url, {
     method: 'POST',
     headers: {
-      'x-api-key': apiKey,
+      'x-api-key': key,
       'anthropic-version': '2023-06-01',
       'content-type': 'application/json',
       'anthropic-dangerous-direct-browser-access': 'true',
     },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 2048,
-      system: SYSTEM_PROMPTS[mode],
-      messages,
-    }),
+    body: JSON.stringify({ model: activeModel, max_tokens: 2048, system: SYSTEM_PROMPTS[mode], messages }),
   });
-
-  if (!res.ok) {
-    let detail = `HTTP ${res.status}`;
-    try { detail = (await res.json()).error?.message || detail; } catch (_) {}
-    if (res.status === 401) throw new Error('Ungültiger API-Key. Bitte in den Einstellungen prüfen.');
-    if (res.status === 429) throw new Error('Rate-Limit erreicht. Bitte kurz warten und nochmal versuchen.');
-    if (res.status === 402) throw new Error('Kein API-Guthaben. Bitte das Anthropic-Konto aufladen.');
-    if (res.status >= 500) throw new Error('Anthropic-Server nicht erreichbar. Bitte später versuchen.');
-    throw new Error(`API-Fehler: ${detail}`);
-  }
-
-  const data = await res.json();
-  return data.content[0]?.text ?? '';
+  if (!res.ok) await throwProviderError(res, 'Anthropic');
+  const d = await res.json();
+  return d.content[0].text;
 }
 
-/* ═══════════════════════════════════════════════════
+async function callOpenAI(prov, key) {
+  const messages = [
+    { role: 'system', content: SYSTEM_PROMPTS[mode] },
+    ...buildConvMessages(),
+  ];
+  const extraHeaders = {};
+  if (activeProvider === 'openrouter') {
+    extraHeaders['HTTP-Referer'] = location.origin || 'https://ki-coach.app';
+    extraHeaders['X-Title'] = 'KI Coach';
+  }
+  const res = await fetch(prov.url, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${key}`,
+      'Content-Type': 'application/json',
+      ...extraHeaders,
+    },
+    body: JSON.stringify({ model: activeModel, max_tokens: 2048, messages }),
+  });
+  if (!res.ok) await throwProviderError(res, prov.name);
+  const d = await res.json();
+  return d.choices[0].message.content;
+}
+
+async function callGoogle(prov, key) {
+  const url = prov.url.replace('{model}', activeModel) + `?key=${key}`;
+  const convMsgs = buildConvMessages();
+  const contents = convMsgs.map(m => ({
+    role: m.role === 'assistant' ? 'model' : 'user',
+    parts: [{ text: m.content }],
+  }));
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      system_instruction: { parts: [{ text: SYSTEM_PROMPTS[mode] }] },
+      contents,
+      generationConfig: { maxOutputTokens: 2048 },
+    }),
+  });
+  if (!res.ok) await throwProviderError(res, 'Google Gemini');
+  const d = await res.json();
+  return d.candidates[0].content.parts[0].text;
+}
+
+async function throwProviderError(res, provName) {
+  let detail = `HTTP ${res.status}`;
+  try { detail = (await res.json()).error?.message || detail; } catch (_) {}
+  if (res.status === 401) throw new Error(`Ungültiger ${provName} API-Key. Bitte in Einstellungen prüfen.`);
+  if (res.status === 429) throw new Error('Rate-Limit erreicht. Bitte kurz warten.');
+  if (res.status === 402) throw new Error('Kein Guthaben. Bitte Konto aufladen.');
+  if (res.status >= 500)  throw new Error(`${provName} Server nicht erreichbar. Bitte später versuchen.`);
+  throw new Error(`${provName} Fehler: ${detail}`);
+}
+
+/* ══════════════════════════════════════════════════
    MARKDOWN RENDERER
 ══════════════════════════════════════════════════ */
 
-function md(raw) {
-  // Escape HTML
-  let s = raw
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-
-  // Fenced code blocks
-  s = s.replace(/```(?:[a-z]*\n)?([\s\S]*?)```/g, (_, c) =>
-    `<pre><code>${c.trimEnd()}</code></pre>`);
-
-  // Headers
-  s = s.replace(/^### (.+)$/gm, '<h3>$1</h3>');
-  s = s.replace(/^## (.+)$/gm,  '<h2>$1</h2>');
-  s = s.replace(/^# (.+)$/gm,   '<h1>$1</h1>');
-
-  // Bold / italic / inline code
+function mdRender(raw) {
+  let s = raw.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  s = s.replace(/```(?:[a-z]*\n)?([\s\S]*?)```/g, (_,c) => `<pre><code>${c.trimEnd()}</code></pre>`);
+  s = s.replace(/^### (.+)$/gm,'<h3>$1</h3>');
+  s = s.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+  s = s.replace(/^# (.+)$/gm,  '<h1>$1</h1>');
   s = s.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
-  s = s.replace(/\*\*(.+?)\*\*/g,      '<strong>$1</strong>');
-  s = s.replace(/\*(.+?)\*/g,          '<em>$1</em>');
-  s = s.replace(/`([^`\n]+)`/g,        '<code>$1</code>');
-
-  // Horizontal rule
+  s = s.replace(/\*\*(.+?)\*\*/g,     '<strong>$1</strong>');
+  s = s.replace(/\*(.+?)\*/g,         '<em>$1</em>');
+  s = s.replace(/`([^`\n]+)`/g,       '<code>$1</code>');
   s = s.replace(/^---+$/gm, '<hr>');
-
-  // Process line-by-line for lists
   const lines = s.split('\n');
-  const out   = [];
-  let inUl = false;
-  let inOl = false;
-
-  for (const line of lines) {
-    const ulM = line.match(/^[\-\*•] (.+)$/);
-    const olM = line.match(/^\d+\. (.+)$/);
-
-    if (ulM) {
-      if (inOl) { out.push('</ol>'); inOl = false; }
-      if (!inUl) { out.push('<ul>'); inUl = true; }
-      out.push(`<li>${ulM[1]}</li>`);
-    } else if (olM) {
-      if (inUl) { out.push('</ul>'); inUl = false; }
-      if (!inOl) { out.push('<ol>'); inOl = true; }
-      out.push(`<li>${olM[1]}</li>`);
-    } else {
-      if (inUl) { out.push('</ul>'); inUl = false; }
-      if (inOl) { out.push('</ol>'); inOl = false; }
-      out.push(line);
-    }
+  const out = []; let ul = false, ol = false;
+  for (const ln of lines) {
+    const ulm = ln.match(/^[\-\*•] (.+)$/);
+    const olm = ln.match(/^\d+\. (.+)$/);
+    if (ulm) { if (ol){out.push('</ol>');ol=false;} if(!ul){out.push('<ul>');ul=true;} out.push(`<li>${ulm[1]}</li>`); }
+    else if (olm) { if (ul){out.push('</ul>');ul=false;} if(!ol){out.push('<ol>');ol=true;} out.push(`<li>${olm[1]}</li>`); }
+    else { if(ul){out.push('</ul>');ul=false;} if(ol){out.push('</ol>');ol=false;} out.push(ln); }
   }
-  if (inUl) out.push('</ul>');
-  if (inOl) out.push('</ol>');
-
+  if (ul) out.push('</ul>'); if (ol) out.push('</ol>');
   s = out.join('\n');
-
-  // Paragraphs: split on blank lines, wrap plain text blocks
-  const blocks = s.split(/\n\n+/);
-  s = blocks.map(b => {
-    b = b.trim();
-    if (!b) return '';
+  s = s.split(/\n\n+/).map(b => {
+    b = b.trim(); if(!b) return '';
     if (/^<(h[1-6]|ul|ol|pre|hr|li)/.test(b)) return b;
-    b = b.replace(/\n/g, '<br>');
-    return `<p>${b}</p>`;
+    return `<p>${b.replace(/\n/g,'<br>')}</p>`;
   }).filter(Boolean).join('\n');
-
   return s;
 }
 
-/* ═══════════════════════════════════════════════════
-   COPY MESSAGE
+/* ══════════════════════════════════════════════════
+   COPY
 ══════════════════════════════════════════════════ */
 
 window.copyMsg = function(i) {
-  const m = convs[mode][i];
-  if (!m) return;
+  const m = convs[mode][i]; if (!m) return;
   const btn = chat.querySelector(`[onclick="copyMsg(${i})"]`);
-  const txt = m.text;
-
-  const done = () => {
-    if (btn) {
-      const prev = btn.textContent;
-      btn.textContent = '✅ Kopiert!';
-      setTimeout(() => btn.textContent = prev, 1600);
-    }
-  };
-
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(txt).then(done).catch(() => fallbackCopy(txt, done));
-  } else {
-    fallbackCopy(txt, done);
-  }
+  const done = () => { if(btn){const p=btn.textContent;btn.textContent='✅ Kopiert!';setTimeout(()=>btn.textContent=p,1600);} };
+  if (navigator.clipboard) navigator.clipboard.writeText(m.text).then(done).catch(()=>fbCopy(m.text,done));
+  else fbCopy(m.text, done);
 };
 
-function fallbackCopy(txt, cb) {
+function fbCopy(txt, cb) {
   const el = document.createElement('textarea');
-  el.value = txt; el.style.position = 'fixed'; el.style.opacity = '0';
+  el.value = txt; el.style.cssText = 'position:fixed;opacity:0;';
   document.body.appendChild(el); el.select();
-  try { document.execCommand('copy'); cb(); } catch (_) {}
+  try { document.execCommand('copy'); cb(); } catch(_){}
   document.body.removeChild(el);
 }
 
-/* ═══════════════════════════════════════════════════
+/* ══════════════════════════════════════════════════
    EXPORT
 ══════════════════════════════════════════════════ */
 
-function exportText() {
+function buildExportText() {
   const msgs = convs[mode];
-  if (!msgs.length) { showNotif('Kein Gespräch vorhanden.'); return; }
+  if (!msgs.length) return null;
   const label = mode === 'business' ? 'Business Coach' : 'Lebens Coach';
-  const lines = msgs.map(m => {
-    const who  = m.role === 'user' ? 'Du' : `KI ${label}`;
-    const time = fmtTime(m.ts);
-    return `[${time}] ${who}:\n${m.text}`;
-  });
+  const lines = msgs.map(m => `[${fmtTime(m.ts)}] ${m.role === 'user' ? 'Du' : `KI ${label}`}:\n${m.text}`);
   return `KI Coach – ${label}\n${'='.repeat(40)}\n\n${lines.join('\n\n')}`;
 }
 
-/* ═══════════════════════════════════════════════════
+/* ══════════════════════════════════════════════════
    PERSIST
 ══════════════════════════════════════════════════ */
 
-function persist() {
+function persistState() {
+  try {
+    localStorage.setItem('kic_state', JSON.stringify({
+      keys: providerKeys, prov: activeProvider, model: activeModel, mode,
+    }));
+  } catch (_) {}
+}
+
+function persistConvs() {
   try {
     localStorage.setItem('kic_convs', JSON.stringify({
       private:  convs.private.slice(-60),
@@ -1165,170 +1195,177 @@ function persist() {
   } catch (_) {}
 }
 
-/* ═══════════════════════════════════════════════════
+/* ══════════════════════════════════════════════════
    HELPERS
 ══════════════════════════════════════════════════ */
 
 function escHtml(t) {
-  return t
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/\n/g, '<br>');
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/\n/g,'<br>');
 }
-
 function fmtTime(ts) {
-  return new Date(ts).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+  return new Date(ts).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
 }
-
 function autoResize() {
   msgInput.style.height = 'auto';
   msgInput.style.height = Math.min(msgInput.scrollHeight, 130) + 'px';
 }
 
-let notifTimer = null;
+let notifT = null;
 function showNotif(msg) {
-  notif.textContent = msg;
-  notif.classList.add('show');
-  clearTimeout(notifTimer);
-  notifTimer = setTimeout(() => notif.classList.remove('show'), 2500);
+  notif.textContent = msg; notif.classList.add('show');
+  clearTimeout(notifT); notifT = setTimeout(()=>notif.classList.remove('show'), 2600);
 }
 
-/* ═══════════════════════════════════════════════════
+/* ══════════════════════════════════════════════════
+   SETTINGS MODAL BUILDER
+══════════════════════════════════════════════════ */
+
+function openSettings() {
+  // Rebuild provider grid for settings
+  buildProvGrid(sProvGrid, activeProvider, prov => {
+    activeProvider = prov;
+    sKey.placeholder = PROVIDERS[prov].placeholder;
+    sKey.value = providerKeys[prov] || '';
+    populateModelSelect(sModel, prov, activeModel);
+  });
+
+  sKey.type = 'password';
+  sKey.placeholder = PROVIDERS[activeProvider].placeholder;
+  sKey.value = providerKeys[activeProvider] || '';
+  populateModelSelect(sModel, activeProvider, activeModel);
+
+  buildProviderList();
+  overlay.classList.add('open');
+}
+
+function buildProviderList() {
+  sProvList.innerHTML = Object.entries(PROVIDERS).map(([id, p]) => {
+    const hasKey   = !!providerKeys[id];
+    const isActive = id === activeProvider;
+    const dotClass = isActive ? 'is-active' : hasKey ? 'has-key' : '';
+    const info     = hasKey ? (isActive ? 'Aktiv' : 'Konfiguriert') : 'Kein Key';
+    return `<div class="prov-status${isActive ? ' active-prov' : ''}" data-prov="${id}">
+      <div class="prov-dot ${dotClass}"></div>
+      <span class="prov-status-name">${p.icon} ${p.name}</span>
+      <span class="prov-status-info">${info}</span>
+    </div>`;
+  }).join('');
+
+  sProvList.querySelectorAll('.prov-status').forEach(row => {
+    row.addEventListener('click', () => {
+      const prov = row.dataset.prov;
+      // Select this provider in the grid
+      sProvGrid.querySelectorAll('.prov-btn').forEach(b => {
+        b.classList.toggle('on', b.dataset.prov === prov);
+      });
+      activeProvider = prov;
+      sKey.placeholder = PROVIDERS[prov].placeholder;
+      sKey.value = providerKeys[prov] || '';
+      populateModelSelect(sModel, prov, activeModel);
+    });
+  });
+}
+
+/* ══════════════════════════════════════════════════
    EVENT LISTENERS
 ══════════════════════════════════════════════════ */
 
 // ── Onboarding ──────────────────────────────────
 obEye.addEventListener('click', () => {
-  const hide = obKey.type === 'password';
-  obKey.type = hide ? 'text' : 'password';
-  obEye.textContent = hide ? '🙈' : '👁';
+  obKey.type = obKey.type === 'password' ? 'text' : 'password';
+  obEye.textContent = obKey.type === 'password' ? '👁' : '🙈';
 });
 
 obStart.addEventListener('click', () => {
-  const k = obKey.value.trim();
-  if (!k.startsWith('sk-ant-')) {
+  const key = obKey.value.trim();
+  if (!key) {
     obKey.classList.add('err');
-    obKey.placeholder = 'Ungültig – muss mit sk-ant- beginnen';
-    setTimeout(() => {
-      obKey.classList.remove('err');
-      obKey.placeholder = 'sk-ant-api03-…';
-    }, 2200);
+    setTimeout(() => obKey.classList.remove('err'), 2000);
     return;
   }
-  apiKey = k;
-  localStorage.setItem('kic_key', k);
+  providerKeys[activeProvider] = key;
+  activeModel = obModel.value;
+  persistState();
   launchApp();
 });
 
 obKey.addEventListener('keydown', e => { if (e.key === 'Enter') obStart.click(); });
 
-// ── Mode toggle ──────────────────────────────────
+// ── Mode ─────────────────────────────────────────
 btnPriv.addEventListener('click', () => applyMode('private'));
 btnBiz.addEventListener('click',  () => applyMode('business'));
 
-// ── Clear ────────────────────────────────────────
+// ── Clear ─────────────────────────────────────────
 btnClear.addEventListener('click', () => {
   confirmToast.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => confirmToast.classList.remove('show'), 4500);
+  toastTimer = setTimeout(() => confirmToast.classList.remove('show'), 5000);
 });
-
 tYes.addEventListener('click', () => {
-  convs[mode] = [];
-  persist();
-  renderChat();
+  convs[mode] = []; persistConvs(); renderChat();
   confirmToast.classList.remove('show');
 });
-
 tNo.addEventListener('click', () => confirmToast.classList.remove('show'));
 
-// ── Settings ─────────────────────────────────────
-btnSettings.addEventListener('click', () => {
-  sKey.value = '';
-  sKey.placeholder = apiKey ? '••••••••••••••••••••' : 'sk-ant-api03-…';
-  overlay.classList.add('open');
-});
-
+// ── Settings ──────────────────────────────────────
+btnSettings.addEventListener('click', openSettings);
 closeSet.addEventListener('click', () => overlay.classList.remove('open'));
-
-overlay.addEventListener('click', e => {
-  if (e.target === overlay) overlay.classList.remove('open');
-});
+overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
 
 sEye.addEventListener('click', () => {
-  const hide = sKey.type === 'password';
-  sKey.type = hide ? 'text' : 'password';
-  sEye.textContent = hide ? '🙈' : '👁';
+  sKey.type = sKey.type === 'password' ? 'text' : 'password';
+  sEye.textContent = sKey.type === 'password' ? '👁' : '🙈';
 });
 
 sSave.addEventListener('click', () => {
-  const k = sKey.value.trim();
-  if (k) {
-    if (!k.startsWith('sk-ant-')) {
-      sKey.classList.add('err');
-      setTimeout(() => sKey.classList.remove('err'), 2000);
-      return;
-    }
-    apiKey = k;
-    localStorage.setItem('kic_key', k);
-    showNotif('API-Key gespeichert ✓');
-  }
-  overlay.classList.remove('open');
+  const key = sKey.value.trim();
+  if (key) providerKeys[activeProvider] = key;
+  activeModel = sModel.value;
+  persistState();
+  updateHeaderTag();
+  buildProviderList();
+  showNotif('Gespeichert ✓');
+  setTimeout(() => overlay.classList.remove('open'), 600);
 });
 
 sExport.addEventListener('click', () => {
-  const txt = exportText();
-  if (!txt) return;
+  const txt = buildExportText();
+  if (!txt) { showNotif('Kein Gespräch vorhanden.'); return; }
   const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
   const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href = url; a.download = `ki-coach-${mode}-${Date.now()}.txt`;
-  a.click(); URL.revokeObjectURL(url);
+  const a = document.createElement('a');
+  a.href = url; a.download = `ki-coach-${mode}-${Date.now()}.txt`; a.click();
+  URL.revokeObjectURL(url);
   overlay.classList.remove('open');
   showNotif('Export gestartet ✓');
 });
 
-sExportCopy.addEventListener('click', () => {
-  const txt = exportText();
-  if (!txt) return;
+sCopyConv.addEventListener('click', () => {
+  const txt = buildExportText();
+  if (!txt) { showNotif('Kein Gespräch vorhanden.'); return; }
   if (navigator.clipboard) {
-    navigator.clipboard.writeText(txt).then(() => {
-      showNotif('Gespräch kopiert ✓');
-      overlay.classList.remove('open');
-    });
+    navigator.clipboard.writeText(txt).then(() => { showNotif('Kopiert ✓'); overlay.classList.remove('open'); });
   } else {
-    fallbackCopy(txt, () => {
-      showNotif('Gespräch kopiert ✓');
-      overlay.classList.remove('open');
-    });
+    fbCopy(txt, () => { showNotif('Kopiert ✓'); overlay.classList.remove('open'); });
   }
 });
 
 // ── Input ─────────────────────────────────────────
 msgInput.addEventListener('input', autoResize);
-
 msgInput.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    send(msgInput.value);
-  }
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(msgInput.value); }
 });
-
 sendBtn.addEventListener('click', () => send(msgInput.value));
 
-// Mobile: scroll down when keyboard opens
+// Mobile keyboard
 if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
   msgInput.addEventListener('focus', () => setTimeout(scrollDown, 350));
-
-  // iOS viewport resize when keyboard appears
   window.visualViewport?.addEventListener('resize', () => {
     if (document.activeElement === msgInput) scrollDown();
   });
 }
 
-/* ═══════════════════════════════════════════════════
+/* ══════════════════════════════════════════════════
    START
 ══════════════════════════════════════════════════ */
 boot();
